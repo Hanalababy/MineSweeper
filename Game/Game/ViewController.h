@@ -11,12 +11,23 @@
 @interface ViewController : UIViewController{
     NSMutableArray* field;
     NSMutableArray* booms;
-    UIView* gameOver;
+    NSMutableArray* mask;
+    UIView* resultView;
     UIButton* flag;
+      UIButton* mark;
+    UILabel* numMines;
     bool setFlag;
+    bool setMark;
+    int clicks;
     int flags;
     int flag_mine;
     int mines;
+    float l;
+    int n;
+    UILabel* timer;
+    NSTimer* myTimer;
+    int min;
+    int sec;
     
     UIButton* pause;
 }
