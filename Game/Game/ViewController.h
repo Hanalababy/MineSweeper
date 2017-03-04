@@ -9,21 +9,35 @@
 #import <UIKit/UIKit.h>
 
 @interface ViewController : UIViewController{
+    
     NSMutableArray* field;
     NSMutableArray* booms;
     NSMutableArray* mask;
-    UIView* resultView;
+    
     UIButton* flag;
-      UIButton* mark;
+    UIButton* mark;
     UILabel* numMines;
+    
+    UIView* resultView;
+    
+    /*setting view*/
+    UIView* settingView;
+    UIButton*settingBtn;
+    UILabel* colLabel;
+    UILabel* rowLabel;
+    UILabel* mine;
+    
     bool setFlag;
     bool setMark;
-    int clicks;
-    int flags;
-    int flag_mine;
-    int mines;
+    int clicks; //total revealed cell
+    int flag_mine;  //number of flag_mine
+    int flags; //number of flag
+    int mines;  //total number of mines
     float l;
-    int n;
+    int col; //
+    int row;
+    
+    /*timer*/
     UILabel* timer;
     NSTimer* myTimer;
     int min;
