@@ -8,8 +8,6 @@
 
 #import "ViewController.h"
 
-
-
 @interface ViewController ()
 
 @end
@@ -20,27 +18,19 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     
-    col=10;  //size of field
-    row=15;
-    mines=10;  //number of mines
+    col=10;  //default column of field
+    row=15;   //default row of field
+    mines=10;  //default number of mines
+    
     [self start];
 }
     
--(void)sliderChanged:(id)sender{
-    UISlider* slider=(UISlider*)sender;
-    if(slider.tag==1){
-        colLabel.text=[NSString stringWithFormat:@"COL: %d",(int)slider.value];
-        col=(int)slider.value;
-    }
-    if(slider.tag==2){
-        rowLabel.text=[NSString stringWithFormat:@"ROW: %d",(int)slider.value];
-        row=(int)slider.value;
-    }
-    if(slider.tag==3){
-        mine.text=[NSString stringWithFormat:@"MINES: %d",(int)slider.value];
-        mines=(int)slider.value;
-    }
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
 }
+
+#pragma mark - setting
 
 -(void)setting{
     settingView=[[UIView alloc]init];
@@ -79,7 +69,7 @@
     rowLabel.textColor=[UIColor whiteColor];
     rowLabel.text=[NSString stringWithFormat:@"ROW: %d",(int)rowSlider.value];
     [settingView addSubview:rowLabel];
-
+    
     
     /*slider*/
     UISlider* mineSlider = [[UISlider alloc]init];
@@ -105,13 +95,33 @@
     [settingView addSubview:returnBtn];
 }
 
+    
+    
+-(void)sliderChanged:(id)sender{
+    UISlider* slider=(UISlider*)sender;
+    if(slider.tag==1){
+        colLabel.text=[NSString stringWithFormat:@"COL: %d",(int)slider.value];
+        col=(int)slider.value;
+    }
+    if(slider.tag==2){
+        rowLabel.text=[NSString stringWithFormat:@"ROW: %d",(int)slider.value];
+        row=(int)slider.value;
+    }
+    if(slider.tag==3){
+        mine.text=[NSString stringWithFormat:@"MINES: %d",(int)slider.value];
+        mines=(int)slider.value;
+    }
+}
+
+#pragma mark - showResult
+
 -(void)showResult:result{
     [myTimer invalidate];
     
     for(int i=0;i!=[field count];i++){
         UIButton*cell=[field objectAtIndex:i];
         int tag=cell.tag;
-        NSNumber*c=[booms objectAtIndex:tag];
+        NSNumber*c=[bombs objectAtIndex:tag];
         NSNumber*m=[mask objectAtIndex:tag];
         /*unclicked bomb*/
         if(m.intValue==0&&c.intValue==-1){
@@ -133,6 +143,7 @@
     [self.view addSubview:resultView];
 }
 
+#pragma mark - flag
 -(void)setFlag{
     [self unsetMark];
     setFlag=1;
@@ -147,7 +158,8 @@
     [flag removeTarget:nil action:nil forControlEvents:UIControlEventTouchUpInside];
     [flag addTarget:self action:@selector(setFlag) forControlEvents:UIControlEventTouchUpInside];    
 }
-
+    
+#pragma mark - mark
 -(void)setMark{
     [self unsetFlag];
     setMark=1;
@@ -163,6 +175,7 @@
     [mark addTarget:self action:@selector(setMark) forControlEvents:UIControlEventTouchUpInside];
 }
 
+#pragma mark - timer
 -(void)timerCount{
     if(clicks==0){
         return;
@@ -189,126 +202,7 @@
     
 }
 
-
-
--(void)setField{
-    /*add field*/
-    l=MIN((self.view.frame.size.width-(col-1))/(col+2),(self.view.frame.size.height-150-(row-1))/(row+2));
-    int temp=mines;//number of mines
-    field=[[NSMutableArray alloc] init];
-    booms=[[NSMutableArray alloc] init];
-    mask=[[NSMutableArray alloc] init];
-    for(int i=0;i!=row;i++){
-        for(int j=0;j!=col;j++){//l+(l+1)*j
-            UIButton*cell =[[UIButton alloc] initWithFrame:CGRectMake((self.view.frame.size.width-col*l-col+1)/2+(l+1)*j,(self.view.frame.size.height-50-row*l-row+1)/2+(l+1)*i, l, l)];
-            cell.tag = i*col+j;
-            cell.layer.borderColor=[UIColor lightGrayColor].CGColor;
-            cell.adjustsImageWhenDisabled = NO;
-            [cell setBackgroundImage:[UIImage imageNamed:@"s.jpg"] forState:UIControlStateNormal];
-            cell.layer.borderWidth=1.0f;
-            [cell addTarget:self action:@selector(click:) forControlEvents:UIControlEventTouchUpInside];
-            [field addObject:cell];
-            [self.view addSubview:cell];
-            
-            [booms addObject:[NSNumber numberWithInt:0]];
-            
-            [mask addObject:[NSNumber numberWithInt:0]]; //0:space  1:clicked 2:flagged 3:marked
-        }
-    }
-    /*set bombs*/
-    bool end=false;
-    while(1){
-        for(int i=0;i!=[field count];i++){
-            NSNumber*c=[booms objectAtIndex:i];
-            if(arc4random()%row==0&&c.intValue!=-1){
-                mines--;
-                [booms replaceObjectAtIndex:i withObject:[NSNumber numberWithInt:-1]];
-            }
-            if(mines==0){
-                end=true;
-                break;
-            }
-        }
-        if(end){
-            break;
-        }
-    }
-    mines=temp;
-    
-    //numMines.text=[NSString stringWithFormat:@"%d",mines-flags];
-    
-    /*count booms*/
-    for(int i=0;i!=row;i++){
-        for(int j=0;j!=col;j++){
-            NSNumber*c=[booms objectAtIndex:i*col+j];
-            if(c.integerValue==-1) continue; //this is a boom
-            int count=0;
-            if(i-1>=0&&j-1>=0){
-                NSNumber*c=[booms objectAtIndex:(i-1)*col+(j-1)];
-                if(c.integerValue==-1){
-                    count+=1;
-                }
-                
-            }
-            if(i-1>=0){
-                NSNumber*c=[booms objectAtIndex:(i-1)*col+j];
-                if(c.integerValue==-1){
-                    count+=1;
-                }
-                
-            }
-            if(i-1>=0&&j+1<col){
-                NSNumber*c=[booms objectAtIndex:(i-1)*col+(j+1)];
-                if(c.integerValue==-1){
-                    count+=1;
-                }
-                
-            }
-            if(j-1>=0){
-                NSNumber*c=[booms objectAtIndex:i*col+(j-1)];
-                if(c.integerValue==-1){
-                    count+=1;
-                }
-                
-            }
-            if(j+1<col){
-                NSNumber*c=[booms objectAtIndex:i*col+(j+1)];
-                if(c.integerValue==-1){
-                    count+=1;
-                }
-                
-            }
-            
-            if(i+1<row&&j-1>=0){
-                NSNumber*c=[booms objectAtIndex:(i+1)*col+(j-1)];
-                if(c.integerValue==-1){
-                    count+=1;
-                }
-                
-            }
-            if(i+1<row){
-                NSNumber*c=[booms objectAtIndex:(i+1)*col+j];
-                if(c.integerValue==-1){
-                    count+=1;
-                }
-                
-            }
-            if(i+1<row&&j+1<col){
-                NSNumber*c=[booms objectAtIndex:(i+1)*col+(j+1)];
-                if(c.integerValue==-1){
-                    count+=1;
-                }
-                
-            }
-            
-            [booms replaceObjectAtIndex:i*col+j withObject:[NSNumber numberWithInt:count]];
-        }
-    }
-
-    
-}
-
-
+#pragma mark - startGame
 -(void)start{
     
     [[self.view subviews]makeObjectsPerformSelector:@selector(removeFromSuperview)];
@@ -316,6 +210,9 @@
     UIView* navView=[[UIView alloc]initWithFrame:CGRectMake(0,self.view.frame.size.height-50,self.view.frame.size.width,50)];
     navView.backgroundColor=[UIColor colorWithWhite:0 alpha:0.5];
     [self.view addSubview:navView];
+    
+    /*number of clicked cells*/
+    clicks=0;
     
     /*mark button*/
     mark=[[UIButton alloc] initWithFrame:CGRectMake(self.view.frame.size.width/2+20+20,5,40,40)];
@@ -325,9 +222,6 @@
     [mark addTarget:self action:@selector(setMark) forControlEvents:UIControlEventTouchUpInside];
     [navView addSubview:mark];
     [self unsetMark];
-
-    /*number of clicked cells*/
-    clicks=0;
     
     /*flag button*/
     flags=0;
@@ -351,8 +245,6 @@
     [settingBtn addTarget:self action:@selector(setting) forControlEvents:UIControlEventTouchUpInside];
     [navView addSubview:settingBtn];
     
-   
-    
     /*timer*/
     timer=[[UILabel alloc]initWithFrame:CGRectMake(self.view.frame.size.width/2+20+20+40+20,5,100,40)];
     min=0;
@@ -366,17 +258,125 @@
                                          userInfo:nil repeats:YES];
     [[NSRunLoop currentRunLoop] addTimer:myTimer forMode:NSRunLoopCommonModes];
     
-    [self setField];
+    /*add field*/
+    l=MIN((self.view.frame.size.width-(col-1))/(col+2),(self.view.frame.size.height-150-(row-1))/(row+2));
+    int temp=mines;//number of mines
+    field=[[NSMutableArray alloc] init];
+    bombs=[[NSMutableArray alloc] init];
+    mask=[[NSMutableArray alloc] init];
+    for(int i=0;i!=row;i++){
+        for(int j=0;j!=col;j++){//l+(l+1)*j
+            UIButton*cell =[[UIButton alloc] initWithFrame:CGRectMake((self.view.frame.size.width-col*l-col+1)/2+(l+1)*j,(self.view.frame.size.height-50-row*l-row+1)/2+(l+1)*i, l, l)];
+            cell.tag = i*col+j;
+            cell.layer.borderColor=[UIColor lightGrayColor].CGColor;
+            cell.adjustsImageWhenDisabled = NO;
+            [cell setBackgroundImage:[UIImage imageNamed:@"s.jpg"] forState:UIControlStateNormal];
+            cell.layer.borderWidth=1.0f;
+            [cell addTarget:self action:@selector(click:) forControlEvents:UIControlEventTouchUpInside];
+            [field addObject:cell];
+            [self.view addSubview:cell];
+            
+            [bombs addObject:[NSNumber numberWithInt:0]];
+            
+            [mask addObject:[NSNumber numberWithInt:0]]; //0:space  1:clicked 2:flagged 3:marked
+        }
+    }
     
+    /*add bombs*/
+    bool end=false;
+    while(1){
+        for(int i=0;i!=[field count];i++){
+            NSNumber*c=[bombs objectAtIndex:i];
+            if(arc4random()%row==0&&c.intValue!=-1){
+                mines--;
+                [bombs replaceObjectAtIndex:i withObject:[NSNumber numberWithInt:-1]];
+            }
+            if(mines==0){
+                end=true;
+                break;
+            }
+        }
+        if(end){
+            break;
+        }
+    }
+    mines=temp;
+
+    /*count bombs*/
+    for(int i=0;i!=row;i++){
+        for(int j=0;j!=col;j++){
+            NSNumber*c=[bombs objectAtIndex:i*col+j];
+            if(c.integerValue==-1) continue; //this is a boom
+            int count=0;
+            if(i-1>=0&&j-1>=0){
+                NSNumber*c=[bombs objectAtIndex:(i-1)*col+(j-1)];
+                if(c.integerValue==-1){
+                    count+=1;
+                }
+                
+            }
+            if(i-1>=0){
+                NSNumber*c=[bombs objectAtIndex:(i-1)*col+j];
+                if(c.integerValue==-1){
+                    count+=1;
+                }
+                
+            }
+            if(i-1>=0&&j+1<col){
+                NSNumber*c=[bombs objectAtIndex:(i-1)*col+(j+1)];
+                if(c.integerValue==-1){
+                    count+=1;
+                }
+                
+            }
+            if(j-1>=0){
+                NSNumber*c=[bombs objectAtIndex:i*col+(j-1)];
+                if(c.integerValue==-1){
+                    count+=1;
+                }
+                
+            }
+            if(j+1<col){
+                NSNumber*c=[bombs objectAtIndex:i*col+(j+1)];
+                if(c.integerValue==-1){
+                    count+=1;
+                }
+                
+            }
+            
+            if(i+1<row&&j-1>=0){
+                NSNumber*c=[bombs objectAtIndex:(i+1)*col+(j-1)];
+                if(c.integerValue==-1){
+                    count+=1;
+                }
+                
+            }
+            if(i+1<row){
+                NSNumber*c=[bombs objectAtIndex:(i+1)*col+j];
+                if(c.integerValue==-1){
+                    count+=1;
+                }
+                
+            }
+            if(i+1<row&&j+1<col){
+                NSNumber*c=[bombs objectAtIndex:(i+1)*col+(j+1)];
+                if(c.integerValue==-1){
+                    count+=1;
+                }
+                
+            }
+            
+            [bombs replaceObjectAtIndex:i*col+j withObject:[NSNumber numberWithInt:count]];
+        }
+    }
 }
 
-
+#pragma mark - clickAction
 -(void)click:(id)sender{
     UIButton *cell = (UIButton *)sender;
     int tag=(int)cell.tag;
-    NSNumber*c=[booms objectAtIndex:tag];
+    NSNumber*c=[bombs objectAtIndex:tag];
     NSNumber*m=[mask objectAtIndex:tag];
-    
     
     /*set flag*/
     if(setFlag==1){
@@ -395,6 +395,7 @@
         }
         return;
     }
+    
     /*set mark*/
     if(setMark==1){
         if(m.intValue==3) //flagged->clear flag
@@ -409,7 +410,7 @@
         return;
     }
     
-    /*already flagged marked clicked*/
+    /*flagged or marked or clicked*/
     if(m.intValue!=0){
         return;
     }
@@ -422,10 +423,12 @@
         [self showResult:@"Game Over"];
         return;
     }
-    /*click number*/
+    
+    /*click a number*/
     NSString *name = [NSString stringWithFormat:@"%d.jpg",c.intValue];
     [cell setBackgroundImage:[UIImage imageNamed:name] forState:UIControlStateNormal];
     clicks+=1;
+    
     /*find all mines->WIN*/
     if(clicks==row*col-mines){
         [self showResult:@"You Win"];
@@ -467,11 +470,5 @@
         }
     }
 }
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
-
 
 @end

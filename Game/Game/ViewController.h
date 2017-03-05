@@ -10,31 +10,37 @@
 
 @interface ViewController : UIViewController{
     
-    NSMutableArray* field;
-    NSMutableArray* booms;
-    NSMutableArray* mask;
-    
-    UIButton* flag;
-    UIButton* mark;
-    UILabel* numMines;
-    
-    UIView* resultView;
-    
     /*setting view*/
     UIView* settingView;
     UIButton*settingBtn;
     UILabel* colLabel;
     UILabel* rowLabel;
     UILabel* mine;
+    NSMutableArray* field;
+    NSMutableArray* bombs;
+    NSMutableArray* mask;
     
+    /*result view*/
+    UIView* resultView;
+    
+    /*flag*/
+    UIButton* flag;
     bool setFlag;
+    
+    /*marl*/
+    UIButton* mark;
     bool setMark;
+    
+    /*mines*/
+    UILabel* numMines;
+    
+    /*general variable*/
     int clicks; //total revealed cell
     int flag_mine;  //number of flag_mine
     int flags; //number of flag
     int mines;  //total number of mines
-    float l;
-    int col; //
+    float l; //length of a cell
+    int col;
     int row;
     
     /*timer*/
@@ -42,11 +48,6 @@
     NSTimer* myTimer;
     int min;
     int sec;
-    
-    UIButton* pause;
 }
-
--(void)click:(id)sender;
-
 @end
 
